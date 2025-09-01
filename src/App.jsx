@@ -123,7 +123,7 @@ function App() {
                   <tr
                     key={user.id}
                     className={`${
-                      idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+                      idx % 2 === 0 ? "bg-gray-100" : "bg-white"
                     } hover:bg-blue-50 transition`}
                   >
                     <td className="py-2 px-2 md:px-4 border">{user.id}</td>
