@@ -6,6 +6,7 @@ function App() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch users from API
   const fetchData = async () => {
@@ -45,11 +46,18 @@ function App() {
     </tr>
   );
 
-  // Sorting function
-  const sortedUsers = useMemo(() => {
-    if (!sortConfig.key) return users;
+  // Filter & Sort
+  const filteredAndSortedUsers = useMemo(() => {
+    let filtered = users.filter((user) => {
+      return (
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.id.toString().includes(searchTerm)
+      );
+    });
 
-    return [...users].sort((a, b) => {
+    if (!sortConfig.key) return filtered;
+
+    return [...filtered].sort((a, b) => {
       if (sortConfig.key === "id") {
         return sortConfig.direction === "asc" ? a.id - b.id : b.id - a.id;
       } else if (sortConfig.key === "name") {
@@ -63,7 +71,7 @@ function App() {
       }
       return 0;
     });
-  }, [users, sortConfig]);
+  }, [users, searchTerm, sortConfig]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6">
@@ -72,6 +80,15 @@ function App() {
           Users Table
         </h1>
 
+        <div className="mb-4 flex justify-end">
+          <input
+            type="text"
+            placeholder="Search by ID or Name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border px-3 py-2 rounded-lg w-full md:w-1/3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
             <thead>
@@ -118,8 +135,8 @@ function App() {
             <tbody>
               {loading ? (
                 <SkeletonRow />
-              ) : sortedUsers.length > 0 ? (
-                sortedUsers.map((user, idx) => (
+              ) : filteredAndSortedUsers.length > 0 ? (
+                filteredAndSortedUsers.map((user, idx) => (
                   <tr
                     key={user.id}
                     className={`${
